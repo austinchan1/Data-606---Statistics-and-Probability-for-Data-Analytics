@@ -1,0 +1,111 @@
+---
+title: "Introduction to R and RStudio (Lab 0)"
+author: "Austin Chan"
+date: 1/27/2019
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+##Exercises:
+
+```{r load-abrbuthnot-data, eval=TRUE}
+#Load the Arbuthnot baptism data
+source("more/arbuthnot.R")
+```
+
+
+1.  What command would you use to extract just the counts of girls baptized? Try
+    it!
+
+```{r}
+#Selects only the girl column
+arbuthnot$girls
+```
+
+
+2.  Is there an apparent trend in the number of girls baptized over the years?  
+    How would you describe it?
+
+```{r plot-girls-vs-year-line, eval=TRUE}
+plot(x = arbuthnot$year, y = arbuthnot$girls, type = "l")
+```
+
+There appears to be a positive correlation between year and the number of girls baptized each year. In other words, as the year increases, the number of girls baptized tends to increase as well. I would describe the relationship as a positive, somewhat linear relationship between the year and the number of girls baptized each year.
+
+
+3.  Now, make a plot of the proportion of boys over time. What do you see? Tip: 
+If you use the up and down arrow keys, you can scroll through your previous 
+commands, your so-called command history. You can also access it by clicking on 
+the history tab in the upper right panel.  This will save you a lot of typing in
+the future.
+
+```{r}
+plot(x = arbuthnot$year, y = arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls))
+```
+
+There does not appear to be any relationship between the year and the proportion of boys baptized. The points are scattered pretty randomly across all years, however all points are located on a narrow band between 0.5 and 0.54. It would appear that the proportion of boys baptized does not deviate significantly from about 0.52 each year.
+
+* * *
+
+## On Your Own
+
+```{r load-present-data, eval=TRUE}
+source("more/present.R")
+```
+
+The data are stored in a data frame called `present`.
+
+###What years are included in this data set? What are the dimensions of the data frame and what are the variable or column names?
+
+```{r}
+#Years:
+
+present$year
+```
+
+```{r}
+#Dimensions:
+
+dim(present)
+```
+
+```{r}
+#Names:
+names(present)
+```
+
+
+###How do these counts compare to Arbuthnot's? Are they on a similar scale?
+
+```{r}
+c(ArbuthnotBoys = floor(mean(arbuthnot$boys)), 
+  PresentBoys = floor(mean(present$boys)),
+  ArbuthnotGirls = floor(mean(arbuthnot$girls)),
+  PresentGirls = floor(mean(present$girls)))
+```
+
+The counts in the presents dataframe are significantly larger than the counts in the arbuthnot dataframe.
+
+###Make a plot that displays the boy-to-girl ratio for every year in the data set. What do you see? Does Arbuthnot's observation about boys being born in greater proportion than girls hold up in the U.S.? Include the plot in your response.
+
+```{r}
+plot(x = present$year, y = present$boys/present$girls, main = "Boy-to-Girl Ratio per Year", xlab = "Year", ylab = "Boy-to-Girl Ratio")
+```
+
+According to the plot, ratio of boys to girls born each year appears to fluctuate between 1.04 and 1.06 each year. If girls were being born in greater proportion than boys, the ratio would need to be consistently less than 1 each year. Since all of the ratios are greater than 1.04, Arbuthnot's observation of boys being born in greater proportion than girls seems to be correct. 
+
+###In what year did we see the most total number of births in the U.S.? 
+
+```{r}
+present$bgsum = present$boys + present$girls
+
+present[which.max(present$bgsum),]
+```
+
+1961 had the most total number of births in the United States.
+
+
