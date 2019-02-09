@@ -1,0 +1,202 @@
+---
+title: "Homework 1"
+author: "Austin Chan"
+date: "January 31, 2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+##1.8
+
+###a).
+
+Each row represents one person. Each person has corresponding demographic information about them as well as information about their smoking habits.
+
+###b).
+
+1,691 participants were included in the survey. This is indicated by the row index on the right of the table.
+
+###c).
+
+Sex - Categorical, not ordinal
+
+Age - Numerical, recorded as discrete since the ages are integers (but technically continuous) 
+
+Gross Income - Categorical, ordinal, since the incomes are recorded as ranges of incomes rather than as specific numerical values
+
+Smoke - Categorical, not ordinal (it is binary)
+
+Amount Weekends - Numerical, discrete
+
+Amount Weekdays - Numerical, discrete
+
+
+##1.10
+
+###a).
+
+Since the problem does not explicitly state the ages of people the study is interested in, the population of interest would be all people.
+
+The sample is the 160 children between the ages of 5 and 15 participating in the study.
+
+###b).
+
+Since the study only includes children between the ages of 5 and 15, its conclusions cannot be generalized to the larger population that consists of all people, including adults older than 15 and children younger than 5.
+
+The findings of the study could possibly be used to establish a causal relationship due to its experimental design with treatment and control groups. However, the problem does not explicitly state that the children were split into random groups (it just says they were split into two groups). Without randomization, there can be bias in the groups, which makes causality harder to prove.
+
+##1.28
+
+###a).
+
+We cannot say for certain that smoking causes dementia because the design of the study was observational. That is, there were no treatment and control groups, which is integral to showing causality. In other words, people were not randomly assigned into groups and then forced to smoke, which prevents causality from being proven.
+
+###b).
+
+This statement is not justified because it assumes that causality has been established between sleep patterns and bullying. Since the data gathered from this study is survey data from parents, it is not an experimental design. In order for the study to show that sleep patterns have an affect on bullying, the researchers would have to sleep deprive children and then see if they bully other children, which is inhumane on many levels.
+
+The only conclusion that can be drawn from this study is that there is some relationship between sleep disorders and behavioral issues/bullying.
+
+
+##1.36
+
+###a).
+
+This study is an experiment.
+
+###b).
+
+The treatment group is the half of the subjects that are instructed to exercise twice a week. The control group is the other half of the subjects that are instructed to not exercise.
+
+###c).
+
+This study does use blocking. The blocking variable is age.
+
+###d).
+
+The study does not make use of blinding because the subject is aware if they are receiving treatment and the researcher is aware of who is receiving treatment.
+
+###e).
+
+The study could possibly establish a causal relationship between exercise and mental health due to the experimental setup of the study. However, given that the study is not blinded, it is more difficult to separate the measurable effect of exercise from the placebo effect of participating in the experiment. If the conclusions are statistically significant, they can be generalized to most the population at large except the children and the elderly due to the balanced representation in the sample from blocking.
+
+###f).
+
+I would have reservations about the  proposal. The study needs to be double blind to mitigate the placebo effect and to minimize the bias on part of the researchers. I would also suggest that the sample be expanded to include children and the elderly so that there is representation across all ages.
+
+##1.48
+
+```{r}
+scores = c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 88, 89, 94)
+
+boxplot(scores, horizontal = TRUE, main = "Boxplot of Final Exam Scores", xlab = "Final Exam Scores")
+```
+
+
+
+##1.50
+
+A - 2
+
+B - 3
+
+C - 1
+
+
+##1.56
+
+###a).
+
+Right Skewed - There are a meaningful number of houses that cost an extreme amount of money and the amount of money between each quartile is inconsistent.
+
+Median - Since the data is skewed, the median better represents a typical observation compared to the mean.
+
+IQR - Since the data is skewed, the standard deviation will be disproportionately affected by the outliers, whereas the IQR will not be affected.
+
+###b).
+
+Symmetric - The amount of money between each quartile is equally spaced and there are few outliers.
+
+Mean - Given that the data is fairly evenly distributed with few outliers, the mean gives a good indication of the typical observation.
+
+Standard Deviation - Since there are few outliers, and a fairly even distribution, the standard deviation is a good choice to measure variability.
+
+###c).
+
+Right Skew - A large proportion would drink zero drinks because they are under 21, which means the distribution would be very dense at zero and become progressively thin as the number of drinks increases.
+
+Median - Given the data is skewed, the median would be a better indicator of the typical observation.
+
+IQR - Since the data is skewed, the standard deviation will be affected by the skew, so the IQR would be a better indicator of variability.
+
+###d).
+
+Right Skew - The salary distribution of a fortune 500 company would have a lot of employees earning a small amount of income. There would be progressively fewer employees earning higher incomes as income increases, with a very small percentage of employees earning large salaries.
+
+Median - Given that the salary distribution is skewed, the median would be a better representation of the typical value compared to the mean.
+
+IQR - The skew in the distribution would affect the standard deviation, so the IQR would be a better measure of spread.
+
+##1.70
+
+###a).
+
+Survival is not independent of whether or not a patient got a transplant. The ratio of alive to dead people for the treatment group is higher than for the control group. This can be seen with the mismatch of the horizontal whitespace between the groups in the mosaic plot. If treatment was independent of survival, the mosaic plot would show a "T", where the propotion of alive and dead are the same for both treatment and control groups.
+
+###b).
+
+According to the boxplot, the treatment appears to be very effective at extending the survival time of patients compared to the control group. The large majority of patients in the control group have survival times less than the median survival time of the treatment group. While many patients in the treatment group also had low survival times, over 50% of the treatment group survived longer than almost everybody in the control group.
+
+###c).
+
+Eyeing the mosaic plot, approximately 90% of the patients in the control group died, while approximately 70% of the patients in the treatment group died.
+
+###d).
+
+i).
+
+The claim being tested is that patients who receive a heart transplant are more likely to increase their lifespan compared to patients who did not receive a heart transplant.
+
+ii).
+
+1. Ten
+
+2. Ninety
+
+3. Fifty
+
+4. Fifty
+
+5. 0.1
+
+6. greater than zero
+
+iii).
+
+Given that nearly half of the simulated sample has a difference in proportion greater than zero, we are unable to reject the null hypothesis and conclude that patients who received the transplant are not more likely to increase their lifespan compared to patients who did not receive the heart transplant.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
