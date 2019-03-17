@@ -1,0 +1,130 @@
+---
+title: 'Foundations for statistical inference - Confidence intervals'
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+```{r load-data, eval=TRUE}
+load("more/ames.RData")
+```
+
+```{r sample, eval=TRUE}
+population <- ames$Gr.Liv.Area
+set.seed(100)
+samp <- sample(population, 60)
+
+hist(samp)
+summary(samp)
+```
+
+1.  Describe the distribution of your sample. What would you say is the 
+"typical" size within your sample? Also state precisely what you interpreted 
+"typical" to mean.
+
+The distribution of my sample is skewed to the right with most values around 1200 square feet or so. Since the sample is skewed, a typical observation would be best described using the median. In this case, the median is 1343 square feet. I interpret "typical" to mean the median.
+
+
+2.  Would you expect another student's distribution to be identical to yours? 
+Would you expect it to be similar? Why or why not?
+
+I would not expect another student's distribution to be exactly identical to mine unless they used the same seed as I did. The chance of another sample including the exact same combination of values as my sample is incredibly small. That being said, I would expect the sample to be similar since both samples are drawing the same number of observations from the same underlying distribution.
+
+
+
+3.  For the confidence interval to be valid, the sample mean must be normally 
+distributed and have standard error $s / \sqrt{n}$. What conditions must be 
+met for this to be true?
+
+Each observation must be independent.
+
+Sample size must be at least 30.
+
+Distribution must not be skewed.
+
+
+## Confidence levels
+
+4.  What does "95% confidence" mean? If you're not sure, see Section 4.2.2.
+
+95% confidence means that out of 100 confidence intervals made from sampling the population, 95% of those intervals will contain the true value that we are trying to estimate.
+
+
+5.  Does your confidence interval capture the true average size of houses in 
+Ames? If you are working on this lab in a classroom, does your neighbor's 
+interval capture this value? 
+
+```{r ci, eval=TRUE}
+sample_mean <- mean(samp)
+se <- sd(samp) / sqrt(60)
+lower <- sample_mean - 1.96 * se
+upper <- sample_mean + 1.96 * se
+c(lower, upper)
+
+mean(population)
+```
+
+My confidence interval captures the true average size of houses in Ames.
+
+6.  Each student in your class should have gotten a slightly different 
+confidence interval. What proportion of those intervals would you expect to 
+capture the true population mean? Why? If you are working in this lab in a 
+classroom, collect data on the intervals created by other students in the 
+class and calculate the proportion of intervals that capture the true 
+population mean.
+
+95% of them should have captured the true population mean because we set a significance level of 95%. 
+
+
+```{r set-up, eval=TRUE}
+set.seed(123)
+samp_mean <- rep(NA, 50)
+samp_sd <- rep(NA, 50)
+n <- 60
+
+for(i in 1:50){
+  samp <- sample(population, n) # obtain a sample of size n = 60 from the population
+  samp_mean[i] <- mean(samp)    # save sample mean in ith element of samp_mean
+  samp_sd[i] <- sd(samp)        # save sample sd in ith element of samp_sd
+}
+
+lower_vector <- samp_mean - 1.96 * samp_sd / sqrt(n) 
+upper_vector <- samp_mean + 1.96 * samp_sd / sqrt(n)
+
+c(lower_vector[1], upper_vector[1])
+```
+
+* * *
+
+## On your own
+
+###1). Using the following function (which was downloaded with the data set), plot all intervals. What proportion of your confidence intervals include the true population mean? Is this proportion exactly equal to the confidence level? If not, explain why.
+
+    ```{r plot-ci, eval=TRUE}
+    plot_ci(lower_vector, upper_vector, mean(population))
+    ```
+
+98% of my confidence intervals included the true population mean. This proportion is not exactly equal to the confidence level. Since this group of confidence intervals are all random samples, they are all also inherently random themselves. Since all of the confidence intervals are created from random samples, they will very rarely exactly match the confidence level. 
+
+###2). Pick a confidence level of your choosing, provided it is not 95%. What is the appropriate critical value?
+
+The critical value of a 99% confidence interval is 2.58.
+
+###3). Calculate 50 confidence intervals at the confidence level you chose in the previous question. You do not need to obtain new samples, simply calculate new intervals based on the sample means and standard deviations you have already collected. Using the `plot_ci` function, plot all intervals and calculate the proportion of intervals that include the true population mean. How does this percentage compare to the confidence level selected for the intervals?
+
+```{r}
+lower_vector <- samp_mean - 2.58 * samp_sd / sqrt(n) 
+upper_vector <- samp_mean + 2.58 * samp_sd / sqrt(n)
+
+plot_ci(lower_vector, upper_vector, mean(population))
+```
+
+At 99% confidence, all of the intervals contain the true value, whereas at 95% confidence, only 98% contained the true value. As the confidence level increases, the more likely a larger proportion of the confidence intervals will contain the true value.
+
+
+
+
+

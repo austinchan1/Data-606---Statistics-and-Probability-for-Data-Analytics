@@ -1,0 +1,240 @@
+---
+title: "Homework 4"
+author: "Austin Chan"
+date: "March 10, 2019"
+output: 
+  html_document:
+    theme: cosmo
+
+---
+
+##4.4
+
+###a).
+
+Point estimate for the mean is 171.1 cm.
+
+Point estimate for the median is 170.3 cm.
+
+###b).
+
+Point estimate for the standard deviation is 9.4 cm.
+
+The IQR is 177.8 - 163.8 or 14 cm.
+
+###c).
+
+A person who is 180cm tall is not unusually tall. 180cm is about one standard deviation above average, which means that this person is taller than about 70ish percent of all people in the sample.
+
+
+A person who is 155cm tall is unusually short because they are 1.78 standard deviations below the mean. Assuming the distribution is normal, this person is shorter than almost 96% of the sample, which is quite significant.
+
+###d).
+
+I would not expect the mean and standard deviation to be the smae as the sample given due to the random nature of the sample. It is incredibly unlikely that another sample will contain the exact combination of individuals necessary to reproduce the exact same mean and standard deviation. Since the point estimates depend on a random sample of individuals, the point estimate itself is random as well.
+
+###e).
+
+To quantify the variability of a point estimate, we use the standard error, which is the population standard deviation divided by the square root of the sample size.
+
+```{r}
+9.4/(sqrt(507))
+```
+
+In this case, the standard error would be about 0.417.
+
+* * *
+
+##4.14
+
+###a).
+
+True, the average spending of this particular sample is between \$80.31 and \$89.11.
+
+###b).
+
+True, since the confidence interval is based on the standard error and the standard error requires the distribution to be nearly normal, skewness will affect the accuracy of the standard error, which makes the confidence interval less reliable.
+
+###c).
+
+False, 95% of random samples contain the true mean. This particular confidence interval is not the same as the spread containing the true mean.
+
+###d).
+
+False, there isn't a 95% chance that the true mean is contained in the confidence interval. 95% of confidence intervals contain the true mean.
+
+###e).
+
+True, the width of the confidence interval depends on the significance level. The higher the significance level, the wider the interval. Therefore, the lower the significance level, the narrower the interval.
+
+###f).
+
+False, in order to make the interval a third of what it is now, the standard error would need to be divided by 3. Since the standard error requires the square root of the sample size, a standard error a third of its current size would need to have a sample 9 times as large, not 3.
+
+###g).
+
+False, the margin of error is 89.11 - 80.31 or 8.8.
+
+* * *
+
+##4.24
+
+###a).
+
+The conditions for inference are mostly satisfied. The observations are independent and the sample size is greater than thirty, however, the normality assumption is a little difficult to determine. The data appears to be slightly skewed to the left with a sharp dropoff after 35 months. 
+
+###b).
+
+H0: Gifted children first count to ten when they are 32 months old or older.
+
+HA: Gifted children first count to ten when they are less than 32 months old.
+
+Significance level: 0.1
+
+```{r}
+qnorm(0.1) * (4.31/sqrt(36))
+
+(30.69 - 32)/(4.31/sqrt(36))
+```
+
+Since -1.82 is less than -0.92, I reject the null hypothesis and conclude that gifted children first count to ten when they are less than 32 months old.
+
+###c).
+
+```{r}
+pnorm((30.69 - 32)/(4.31/sqrt(36)))
+```
+
+The p-value in this context is the probability of observing that gifted children first count to ten at 30.69 months old assuming that children in general first count to ten at 32 months old. This probability is 0.034.
+
+###d).
+
+```{r}
+bound = abs(qnorm(0.05)* (4.31/sqrt(36)))
+mean = 30.69
+
+c(mean-bound,mean+bound)
+```
+
+With 90% confidence, the average age at which gifted children first count to ten successfully is between 29.5 months and 31.9 months.
+
+###e).
+
+Yes they agree. The hypothesis test rejected the null hypothesis because it was unusual to observe the average age at 30.69 with 90% confidence. The confidence interval says the same thing but slightly differently. Since 32 months is not included in the confidence interval, then we are 90% confident that the average age is not 32 months. The confidence interval and hypothesis test are saying the same thing, but slightly differently.
+
+* * *
+
+##4.26
+
+###a).
+
+H0: IQ of mothers of gifted children is 100.
+
+HA: IQ of mothers of gifted children is not 100.
+
+Significance level is 0.1.
+
+```{r}
+abs(qnorm(0.05) * (6.5/sqrt(36)))
+
+(118.2 - 100)/(6.5/sqrt(36))
+```
+
+Since 16.8 > 1.78, I reject the null hypothesis and conclude that the IQ of mothers of gifted children is not 100.
+
+###b).
+
+```{r}
+bound = abs(qnorm(0.05) * (6.5/sqrt(36)))
+mean = 118.2
+
+c(mean-bound,mean+bound)
+```
+
+With 90% confidence, the average Iq of mothers of gifted children is between 116.4 and 120.0.
+
+###c).
+
+The results from the hypothesis test and the confidence interval agree. The hypothesis test states that the observed mean IQ is highly unusual assuming that the average IQ is 100. The confidence interval states that the observed mean IQ is between 116 and 120, which are both way above 100.
+
+* * *
+
+##4.34
+
+The sampling distribution of the mean is the the distribution of means gathered through random sampling. As the sample size increases, the sampling distribution becomes increasingly normal, the center approaches the true population mean, and the spread narrows.
+
+* * *
+
+##4.40
+
+###a).
+
+```{r}
+1 - pnorm((10500 - 9000)/1000)
+```
+
+The probability that a randomly chosen lightbulb lasts more than 10,500 hours is about 0.067.
+
+###b).
+
+The distribution of the mean lifespan of a sample of 15 lightbulbs should look vaguely normal with a mean somewhat close to 9000 and a variance somewhat close to 1000.
+
+###c).
+
+```{r}
+1 - pnorm((10500 - 9000)/(1000/sqrt(15)))
+```
+
+The probability that the mean lifespan of 15 randomly chosen lightbulbs is more than 10,500 hours is basically zero.
+
+###d).
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+#simulate some data
+
+simulation = data.frame(Population = rnorm(1000,9000,1000), Sample = sapply(1:1000,function(x)  mean(rnorm(15,9000,1000))))
+
+simdata = melt(simulation)
+
+#plot data
+
+ggplot(simdata, aes(x = value, fill = variable)) + geom_density(alpha = 0.25)
+```
+
+###e).
+
+If the lifespans were skewed, it would not be possible to estimate (a) by assuming that the distribution is normal. However, it is possible to estimate (c) because the central limit theorem shows that distributions of mean estimates follow a normal distribution. Since the sampling distribution is normal, it is possible to use normal inference strategies.
+
+* * *
+
+##4.48
+
+The p-value would decrease because it depends on the standard error, which is dependent on the sample size. Since standard error is calculated by the standard deviation over the square root of the sample size, as the sample size increases, the standard error decreases. Since the p-value is calculated using the significance level multiplied by the standard error, if the standard error is smaller, the nthe p-value will also become smaller as well.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
