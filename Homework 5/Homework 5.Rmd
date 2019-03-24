@@ -1,0 +1,178 @@
+---
+title: "Homework 5"
+author: "Austin Chan"
+date: "March 22, 2019"
+output: 
+  html_document:
+    theme: cosmo
+---
+
+##5.6
+
+```{r}
+mean = (65 + 77)/2
+
+marginoferror = (77 - 65)/2
+
+sd = (6/1.645) * sqrt(25)
+
+mean
+marginoferror
+sd
+```
+
+##5.14
+
+###a).
+
+```{r}
+n = ceiling(((1.645 * 250)/25)^2)
+
+n
+```
+
+###b).
+
+Luke's sample should be larger than Raina's because he wants the same margin of error with more certainty. When the confidence level increases and the sample size remains the same, the margin widens because a higher multiplier is used to calculate the confidence interval. To maintain the same size confidence interval with more certainty, Luke would have to increase his sample size to counteract the increasing multiplier.
+
+###c).
+
+```{r}
+LukeN = ceiling(((2.576 * 250)/25)^2)
+
+LukeN
+```
+
+##5.20
+
+###a).
+
+There does not appear to be a clear difference between reading and writing scores. The boxplots are almost completely overlapping each other and the differences in scores centers at zero, indicating no difference.
+
+###b).
+
+Reading and writing scores are not independent of each other. Reading and writing are usually both taught in English class and they are inherently linked together.
+
+###c).
+
+H0: There is no difference between the mean reading scores and writing scores of high school seniors.
+
+HA: There is a difference between the mean reading scores and writing scores of high school seniors.
+
+###d).
+
+Independence of observations - The survey is a simple random sample, so the observations are most likely independent from each other. Also 200 high school seniors is less than 10% of all high school seniors.
+
+Observations come from a normal distribution - Both samples do not appear to have significant skew or outliers, so they are both probably normal.
+
+Samples are independent - The samples are not independent as stated in part (b).
+
+The test will not be effective because the samples are not indpendent.
+
+###e).
+
+```{r}
+-0.545/(8.887/sqrt(200))
+```
+
+
+The data does not provide convincing evidence that there is a difference between the two scores. The z-score for this mean is -0.87 which will have a very high p-value. When the p-value is high, then there is a good chance that the observed difference could have been random variation in the data rather than a real measurable difference.
+
+###f).
+
+We could have made a type-2 error. This means that we fail to reject the null hypothesis when the alternative hypothesis was true. In the context of this problem, this means that we stated that there is no difference between the mean reading and writing scores of high school seniors when there is actually a difference.
+
+###g).
+
+I would expect the confidence interval for the average difference between reading and writing scores to include zero. There is no discernable difference in the reading vs. writing boxplots. The distribution of the score differences centers at zero. The test has a very high p-value. All signs indicate that there is no difference between the mean reading and writing scores, which makes it very likely that the confidence interval includes zero.
+
+
+##5.32
+
+H0: There is no difference in the average mpg between automatic transmission cars and manual cars.
+
+HA: There is a difference in the average mpg between automatic transmission cars and manual cars.
+
+```{r}
+difference = 19.85 - 16.12
+
+se = sqrt((3.58^2)/26 + (4.51^2)/26)
+
+t = abs(qt(0.025,25))
+
+c(difference - (se * t), difference + (se * t))
+```
+
+Since 0 is not included in the confidence interval, I can conclude with 95% confidence that there is a difference between the average mpg of automatic transmission cars and manual cars.
+
+The data provides strong evidence of a difference between the average fuel efficiency of cars with manual and automatic transmissions in terms of their average city mileage.
+
+##5.48
+
+###a).
+
+H0: There is no difference in the average hours worked per week across all levels of educational attainment.
+
+HA: There is at least one difference in the average hours worked per week between each level of educational attainment.
+
+###b).
+
+Observations are independent within and across groups - The data was probably gathered from a simple random sample, so they are probably independent. Also, each population is less than 10% of their respective total populations.
+
+The data within each group are nearly normal - Most of the distributions are normally distributed, except for the bachelors and graduate degrees which appear to be right skewed. However, since the sample size is quite large for both samples, this condition can be relaxed a bit.
+
+The variability across the groups is about equal - The standard deviation for each group is very close to the total standard deviation. The furthest departure is 18.1 from the Junior college population. However, 18.1 is still very close to 15.17, so it is safe to assume that the variability across all groups is equal.
+
+###c).
+
+degree DF = k - 1 = 5 - 1 = 4
+
+residual DF = n - k = 1172 - 5 = 1167
+
+total DF = 1171
+
+```{r}
+degreeSumSq = 501.54 * 4
+
+residualMeanSq = 267382/1167
+
+totalSumSq = degreeSumSq + 267382
+
+Fvalue = 501.54/residualMeanSq
+
+degreeSumSq
+totalSumSq
+residualMeanSq
+Fvalue
+```
+
+###d).
+
+With 90% confidence, there is enough evidence to conlcude that at least one of the groups has a different mean than the other groups. In other words, there is at least one difference in the average hours worked per week between each level of educational attainment.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
