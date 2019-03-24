@@ -1,0 +1,144 @@
+---
+title: 'Inference for numerical data'
+author: 'Austin Chan'
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+```{r load-data, eval=TRUE}
+load("more/nc.RData")
+```
+
+1.  What are the cases in this data set? How many cases are there in our sample?
+
+```{r}
+dim(nc)
+```
+
+
+The cases in this dataset correspond to individual births that occurred in North Carolina. 
+
+There are 1000 cases in the sample.
+
+
+2.  Make a side-by-side boxplot of `habit` and `weight`. What does the plot 
+highlight about the relationship between these two variables?
+
+```{r}
+boxplot(nc$weight ~ nc$habit, horizontal = TRUE, xlab = "Weight", main = "Baby weights by mother's smoking habit")
+```
+
+The plot highlights that there is a slight difference between baby weights of smokers and non-smokers. Non-smokers appear to have a slightly higher median baby weight compared to smokers.
+
+
+3.  Check if the conditions necessary for inference are satisfied. Note that 
+you will need to obtain sample sizes to check the conditions. You can compute 
+the group size using the same `by` command above but replacing `mean` with 
+`length`.
+
+```{r}
+by(nc$weight, nc$habit, length)
+```
+
+```{r}
+by(nc$weight, nc$habit, hist)
+```
+
+
+Each population is less than 10% of their total respective populations, so we can assume that the observations are independent. The sample sizes for each group are both greater than 30. The data is skewed for both populations, however, since the sample size is large, this condition can be relaxed.
+
+Aside from the moderate skewness of the data, the conditions for inference are satisfied.
+
+
+4.  Write the hypotheses for testing if the average weights of babies born to 
+smoking and non-smoking mothers are different.
+
+H0: There is no difference between the weights of babies born from smoking mothers and non-smoking mothers.
+
+HA: There is a difference between the weights of babies born from smoking mothers and non-smoking mothers.
+
+5.  Change the `type` argument to `"ci"` to construct and record a confidence 
+interval for the difference between the weights of babies born to smoking and 
+non-smoking mothers.
+
+```{r}
+inference(y = nc$weight, x = nc$habit, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical")
+```
+
+
+* * *
+
+## On your own
+
+###1). Calculate a 95% confidence interval for the average length of pregnancies (`weeks`) and interpret it in context. Note that since you're doing inference on a single population parameter, there is no explanatory variable, so you can omit the `x` variable from the function.
+
+```{r}
+inference(y = nc$weeks, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical")
+```
+
+With 95% confidence, the average length of a pregnancy in North Carolina is between 38.1528 weeks and 38.5165 weeks.
+
+
+###2). Calculate a new confidence interval for the same parameter at the 90% confidence level. You can change the confidence level by adding a new argument to the function: `conflevel = 0.90`.
+
+```{r}
+inference(y = nc$weeks, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical", conflevel = 0.9)
+```
+
+###3). Conduct a hypothesis test evaluating whether the average weight gained by younger mothers is different than the average weight gained by mature mothers.
+
+```{r}
+inference(y = nc$gained, x = nc$mature, est = "mean", type = "ht", null = 0, 
+          alternative = "twosided", method = "theoretical")
+```
+
+##4). Now, a non-inference task: Determine the age cutoff for younger and mature mothers. Use a method of your choice, and explain how your method works.
+
+To determine the age cutoff for younger and mature mothers, I used a logistic regression to predict maturity using the mother's age. I created a logistic model using the `glm` function to model the data. After creating the model, I predicted whether or not a mother was younger or mature using their age. Afterwards, I plotted a logistic curve to show the predicted probabilities of belonging in a certain class depending on age. The inflection point of this graph shows where cutoff point is.
+
+For this model, the cutoff point appears to be at 40 years old.
+
+```{r}
+logisticmodel = glm(mature~fage,data=nc,family=binomial(link=logit))
+
+summary(logisticmodel)
+```
+
+```{r}
+nc$maturebinary = nc$mature == "younger mom"
+
+FemaleAgeVector = na.omit(data.frame(fage = nc$fage, maturebinary = nc$maturebinary))
+
+newdata = data.frame(fage = seq(min(FemaleAgeVector$fage), max(FemaleAgeVector$fage), len = length(FemaleAgeVector$fage)))
+
+newdata$predicted = predict(logisticmodel, newdata = newdata, type = "response")
+
+plot(maturebinary~fage, data = FemaleAgeVector, col = "red4")
+lines(predicted~fage, data = newdata, col = "green4", lwd = 2)
+```
+
+
+###5). Pick a pair of numerical and categorical variables and come up with a research question evaluating the relationship between these variables. Formulate the question in a way that it can be answered using a hypothesis testand/or a confidence interval. Answer your question using the `inference` function, report the statistical results, and also provide an explanation in plain language.
+
+Is there a difference between the average pregnancy term length of premature babies compared to full term babies?
+
+```{r}
+inference(y = nc$weeks, x = nc$premie, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical", conflevel = 0.95)
+```
+
+Since 0 is not iside the confidence interval, I can conclude that the average term for premie babies is different than the average term for full term babies.
+
+In plain language, with 95% confidence, the observed difference in term weeks between premie babies and full term babies is between 5.4309 weeks and 6.5656 weeks. 
+
+
+
+
