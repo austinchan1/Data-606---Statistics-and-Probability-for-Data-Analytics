@@ -1,0 +1,153 @@
+---
+title: "Data 606 - Project Proposal"
+author: "Austin Chan"
+date: "March 31, 2019"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+##Data Preparation
+
+```{r}
+library(DT)
+
+RecentGrads = read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/recent-grads.csv", stringsAsFactors = F)
+
+RecentGrads$CollegeDegreePct = RecentGrads$College_jobs/(RecentGrads$College_jobs + RecentGrads$Non_college_jobs + RecentGrads$Low_wage_jobs)
+
+datatable(RecentGrads)
+```
+
+
+##Research question
+
+Is there a relationship between median full time earnings and major category?
+
+##What are the cases, and how many are there?
+
+The cases are individual college majors. There are 173 of them.
+
+##Data collection method
+
+The data is collected from the US Census in a program called the American Community Survey. The American Community Survey program gathers data for the Public Use Microdata Sample, which creates aggregated counts and statistics of households across the United States.
+
+##What type of study is this?
+
+This study is an observational study.
+
+##Data Source
+
+The data is collected by the US Census Bureau and can be found here:
+
+https://www.census.gov/programs-surveys/acs/data/pums.html
+
+For this project, the data has been posted to Github by the people at fivethirtyeight, where I am accessing the data directly.
+
+The github link can be found here:
+
+https://github.com/fivethirtyeight/data/blob/master/college-majors/recent-grads.csv
+
+Documentation for PUMS can be found here:
+
+https://www.census.gov/programs-surveys/acs/technical-documentation/pums.html
+
+##Response variable
+
+The response variable is median full time earnings. This variable is numeric.
+
+##Explanatory variable(s)
+
+The explanatory variable is major category. This variable is categorical.
+
+Further analysis will probably uncover other explanatory variables that include, the proportion of women in the major, the unemployment rate, and the proportion of people in a job requiring a college degree.
+
+##Summary statistics
+
+###Recent grads histogram
+
+```{r}
+summary(RecentGrads$Median)
+hist(RecentGrads$Median)
+```
+
+###Major category
+
+```{r}
+table(RecentGrads$Major_category)
+```
+
+
+
+###Proportion of women plot
+
+```{r}
+summary(RecentGrads$ShareWomen)
+
+plot(RecentGrads$ShareWomen,RecentGrads$Median, xlab = "Proportion of Women",ylab = "Median Annual Income",main = "Proportion of Women vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$ShareWomen),col = "red")
+```
+
+###Unemployment Rate
+
+```{r}
+summary(RecentGrads$Unemployment_rate)
+
+plot(RecentGrads$Unemployment_rate,RecentGrads$Median, xlab = "Unemployment Rate",ylab = "Median Annual Income",main = "Unemployment Rate vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$Unemployment_rate),col = "red")
+```
+
+###College Degree Percentage
+
+```{r}
+summary(RecentGrads$CollegeDegreePct)
+
+plot(RecentGrads$CollegeDegreePct,RecentGrads$Median, xlab = "College Degree Percentage",ylab = "Median Annual Income",main = "College Degree Percentage vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$CollegeDegreePct),col = "red")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
