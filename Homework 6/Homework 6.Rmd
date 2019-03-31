@@ -1,0 +1,193 @@
+---
+title: "Homework 6"
+author: "Austin Chan"
+date: "March 30, 2019"
+output: 
+  html_document:
+    theme: cosmo
+---
+
+##6.6
+
+###a).
+
+False, the proportion of Americans who support the decision for this particular sample is already known. It is 46%.
+
+###b).
+
+True, assuming that the sample is representative of the US population, this statement is correct.
+
+###c).
+
+False, if many random samples were taken, 95% of the confidence intervals calculated from those samples will include the true population proportion. This statement says that 95% of the sample proportions will fall into this specific confidence interval, which is not true.
+
+###d).
+
+False, the margin of error is directly related to the confidence level. Assuming that sample size stays the same, as the confidence level decreases, the margin of error also decreases.
+
+
+##6.12
+
+###a).
+
+It is a sample statistic. The proportion was calculated using the sample of 1,259 US residents and not the entire US population.
+
+###b).
+
+```{r}
+SE6.12b = sqrt((0.48 * (1 - 0.48))/1259)
+
+LB6.12b = 0.48 - 1.96 * SE6.12b
+UB6.12b = 0.48 + 1.96 * SE6.12b
+
+c(LB6.12b,UB6.12b)
+```
+
+The true proportion of US residents in this sample who believe that marijuana should be made legal is between 0.452 and 0.508 with 95% confidence. 
+
+###c).
+
+Independence - The problem does not explicitly say that the respondents were gathered from a simple random sample, so it is not guaranteed that the observations are independent.
+
+Success-Failure criteria - The expected number of respondents is more than 10 for both groups, so this criteria passes.
+
+###d).
+
+This statement is not justified because 0.5 is included in the confidence interval, which means that there is a possibility that there is not a majority of Americans who think that marijuana should be legalized.
+
+##6.20
+
+```{r}
+n6.20 = (0.48*0.52)/((0.02/1.96)^2)
+n6.20
+```
+
+We would need to survey 2398 Americans to get a margin of error of 2%.
+
+##6.28
+
+```{r}
+SECali = (0.08 * 0.92)/11545
+SEOr = (0.088 * 0.912)/4691
+
+SEpooled6.28 = sqrt(SECali + SEOr)
+
+pdiff6.28 = 0.08 - 0.088
+
+LB6.28 = pdiff6.28 - 1.96 * SEpooled6.28
+UB6.28 = pdiff6.28 + 1.96 * SEpooled6.28
+
+c(LB6.28,UB6.28)
+```
+
+With 95% confidence, the true difference between the proportions of Californians and Oregonians who are sleep deprived is between -0.0175 and 0.0015.
+
+
+##6.44
+
+###a).
+
+H0: Barking deer do not prefer to forage in certain habitats over others.
+
+HA: Barking deer prefer to forage in certain habitats over others.
+
+###b).
+
+A Chi-squared test can be used to answer this research question.
+
+###c).
+
+Independence - This sample was probably gathered from a simple random sample of deer and the sample consists of less than 10% of the total deer population, so it is safe to assume that the observations are indepdendent.
+
+Group size - The expected group sizes for the groups are all above 5.
+
+###d).
+
+
+```{r}
+deer = c(4,16,67,345)
+probs = c(0.048,0.147,0.396,1 - 0.048 - 0.147 - 0.396)
+
+chisq.test(x=deer,p=probs)
+```
+
+The chi-squared test provides convincing evidence that barking deer prefer for forage in certain habitats over others because the p-value is almost zero, which indicates that it is highly unlikely that the distribution of the probabilities happened by chance.
+
+
+##6.48
+
+###a).
+
+The chi-squared test for multiple groups is used to test data like this.
+
+###b).
+
+H0: There is no relationship between caffeinated coffee consumption and the risk of depression in women.
+
+HA: There is a relationship between caffeinated coffee consumption and the risk of depression in women.
+
+###c).
+
+```{r}
+Depressed = 2607/50739
+NotDepressed = 48132/50739
+
+Depressed
+NotDepressed
+```
+
+###d).
+
+```{r}
+Expected6.48d = (2607*6617)/50739
+
+chisqCalc = function(observed,expected){
+  
+  output = ((observed - expected)^2)/expected
+  
+  return(output)
+  
+}
+
+chisqCalc(373,Expected6.48d)
+```
+
+###e).
+
+```{r}
+df = (2 - 1) * (5 - 1)
+
+pchisq(20.93,df,lower.tail = F)
+```
+
+P-value is 0.000327.
+
+
+###f).
+
+I reject the null hypothesis and conclude that there is a statistically significant relationship between caffeinated coffee consuption and risk of depression in women.
+
+###g).
+
+I agree with this statement. This is an observational study and there is no causal link that can be established between coffee consumption and depression in women. It is possible that there are other factors that can contribute to depression that are not related to coffee consumption. There can be correlation without causation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
