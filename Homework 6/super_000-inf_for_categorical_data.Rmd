@@ -1,0 +1,287 @@
+---
+title: 'Inference for categorical data'
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+1.  In the first paragraph, several key findings are reported. Do these 
+    percentages appear to be *sample statistics* (derived from the data 
+    sample) or *population parameters*?
+
+
+This percentages appear to be sample statistics. However, they talk about them like they are population parameters.
+
+
+
+2.  The title of the report is "Global Index of Religiosity and Atheism". To
+    generalize the report's findings to the global human population, what must 
+    we assume about the sampling method? Does that seem like a reasonable 
+    assumption?
+    
+We must assume the the sample is a simple random sample. The report states that they sampled using a "national probability sample" method, which is technically not a simple random sample. However, for the sake of analysis, this sample is random enough to conduct inference.
+
+
+```{r head-data, eval=TRUE}
+load("more/atheism.RData")
+```
+
+3.  What does each row of Table 6 correspond to? What does each row of 
+    `atheism` correspond to?
+
+```{r}
+head(atheism)
+```
+
+Each row in table 6 corresponds to a single country and its relative proportions of religious beliefs among the sample taken from that country.
+
+Each row of `atheism` corresponds to the religious beliefs of one person in one country during a specific year.
+
+
+4.  Using the command below, create a new dataframe called `us12` that contains
+    only the rows in `atheism` associated with respondents to the 2012 survey 
+    from the United States. Next, calculate the proportion of atheist 
+    responses. Does it agree with the percentage in Table 6? If not, why?
+
+```{r us-atheism, eval=TRUE,message=F,warning=F}
+us12 <- subset(atheism, nationality == "United States" & year == "2012")
+
+library(dplyr)
+
+us12 %>%
+  group_by(response) %>%
+  summarise(proportion = length(response)/1002)
+```
+
+The proportion agrees with the percentage of atheist responses in the data. They rounded the atheist percentage up to 5% because 4.99% is close enough to 5%.
+
+
+5.  Write out the conditions for inference to construct a 95% confidence
+    interval for the proportion of atheists in the United States in 2012.
+    Are you confident all conditions are met?
+
+Observations must be independent - There may be some degree of sampling bias since the sample was not a simple random sample, however, the data is random enough to have independent observations. Also the sample is less than 10% of the population.
+
+Success failure criteria - There are at least 10 expected people in the success group and 10 people in the failure group.
+
+
+```{r us-atheism-ci, eval=TRUE, tidy = FALSE}
+inference(us12$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+```
+
+6.  Based on the R output, what is the margin of error for the estimate of the 
+    proportion of the proportion of atheists in US in 2012?
+
+```{r}
+(0.0634 - 0.0364)/2
+```
+
+
+The margin of error is 0.0135.
+
+7.  Using the `inference` function, calculate confidence intervals for the 
+    proportion of atheists in 2012 in two other countries of your choice, and 
+    report the associated margins of error. Be sure to note whether the 
+    conditions for inference are met. It may be helpful to create new data 
+    sets for each of the two countries first, and then use these data sets in 
+    the `inference` function to construct the confidence intervals.
+
+Observations must be independent - There may be some degree of sampling bias since the sample was not a simple random sample, however, the data is random enough to have independent observations. Also the sample is less than 10% of the population.
+
+Success failure criteria - There are at least 10 people in the expected success group and 10 people in the expected failure group for both samples. 
+
+```{r}
+serbia12 <- subset(atheism, nationality == "Serbia" & year == "2012")
+
+serbia12 %>%
+  group_by(response) %>%
+  summarise(proportion = length(response)/1036)
+
+0.03 * 1036
+
+inference(serbia12$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+
+(0.0403 - 0.0195)/2
+```
+
+Serbia margin of error is 0.0104.
+
+```{r}
+poland12 <- subset(atheism, nationality == "Poland" & year == "2012")
+
+poland12 %>%
+  group_by(response) %>%
+  summarise(proportion = length(response)/1036)
+
+0.025 * 525
+
+inference(poland12$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+
+(0.0681 - 0.031)/2
+```
+
+Poland margin of error is 0.01855.
+
+
+8.  Describe the relationship between `p` and `me`.
+
+```{r me-plot, eval=TRUE}
+n <- 1000
+p <- seq(0, 1, 0.01)
+me <- 2 * sqrt(p * (1 - p)/n)
+plot(me ~ p, ylab = "Margin of Error", xlab = "Population Proportion")
+```
+
+As p approaches 0.5, the margin of error is maximized. As p approaches 0 or 1, the margin of error is minimized.
+
+
+9.  Describe the sampling distribution of sample proportions at $n = 1040$ and 
+    $p = 0.1$. Be sure to note the center, spread, and shape.\
+    *Hint:* Remember that R has functions such as `mean` to calculate summary
+    statistics.
+
+
+```{r sim-np, eval=TRUE}
+p <- 0.1
+n <- 1040
+p_hats <- rep(0, 5000)
+
+for(i in 1:5000){
+  samp <- sample(c("atheist", "non_atheist"), n, replace = TRUE, prob = c(p, 1-p))
+  p_hats[i] <- sum(samp == "atheist")/n
+}
+
+hist(p_hats, main = "p = 0.1, n = 1040", xlim = c(0, 0.18))
+
+mean(p_hats)
+```
+
+The sampling distribution appears to be centered at 0.1 and is normally distributed. The distribution is also relatively narrow, meaning that the spread is quite small.
+
+10. Repeat the above simulation three more times but with modified sample
+    sizes and proportions: for $n = 400$ and $p = 0.1$, $n = 1040$ and 
+    $p = 0.02$, and $n = 400$ and $p = 0.02$. Plot all four histograms
+    together by running the `par(mfrow = c(2, 2))` command before creating the 
+    histograms. You may need to expand the plot window to accommodate the 
+    larger two-by-two plot. Describe the three new sampling distributions. 
+    Based on these limited plots, how does $n$ appear to affect the 
+    distribution of $\hat{p}$? How does $p$ affect the sampling distribution?
+
+```{r, eval=TRUE}
+Ex10Sim = function(p_input,n_input,title){
+  
+  p <- p_input
+  n <- n_input
+  p_hats <- rep(0, 5000)
+  
+  for(i in 1:5000){
+    samp <- sample(c("atheist", "non_atheist"), n, replace = TRUE, prob = c(p, 1-p))
+    p_hats[i] <- sum(samp == "atheist")/n
+  }
+  
+  hist(p_hats, main = title, xlim = c(0, 0.18))
+  
+  
+}
+
+par(mfrow=c(2,2))
+
+Ex10Sim(0.1,1040,"n1040 p0.1")
+Ex10Sim(0.1,400,"n400 p0.1")
+Ex10Sim(0.02,1040,"n1040 p0.02")
+Ex10Sim(0.02,400,"n400 p0.02")
+
+par(mfrow=c(1,1))
+```
+
+Increasing n decreases the spread.
+
+Moving p closer to zero changes the center and shape of the distribution to be more skewed.
+
+11. If you refer to Table 6, you'll find that Australia has a sample 
+    proportion of 0.1 on a sample size of 1040, and that Ecuador has a sample 
+    proportion of 0.02 on 400 subjects. Let's suppose for this exercise that 
+    these point estimates are actually the truth. Then given the shape of 
+    their respective sampling distributions, do you think it is sensible to 
+    proceed with inference and report margin of errors, as the reports does?
+
+It is sensible to report the margin of error for Australia because its sample size is larger and has a sample proportion that is farther away from zero compared to Ecuador. It is not sensible to report the margin of error for Ecuador because its sample size is smaller and its sample proportion is very close to zero, which makes the margin of error less reliable.
+
+* * *
+## On your own
+
+
+###1). Answer the following two questions using the `inference` function. As always, write out the hypotheses for any tests you conduct and outline the status of the conditions for inference.
+
+####a). Is there convincing evidence that Spain has seen a change in its atheism index between 2005 and 2012?\ *Hint:* Create a new data set for respondents from Spain. Form confidence intervals for the true proportion of athiests in both years, and determine whether they overlap.
+
+Observations must be independent - There may be some degree of sampling bias since the sample was not a simple random sample, however, the data is random enough to have independent observations. Also the sample is less than 10% of the population.
+
+Success failure criteria - There are at least 10 expected people in the success group and 10 people in the failure group.
+
+H0: There is no change in the atheism index of Spain between 2005 and 2012.
+
+HA: There is a change in the atheism index of Spain between 2005 and 2012.
+
+```{r}
+Spain12 <- subset(atheism, nationality == "Spain" & year == "2012")
+
+inference(Spain12$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+```
+
+```{r}
+Spain5 <- subset(atheism, nationality == "Spain" & year == "2005")
+
+inference(Spain5$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+```
+
+The confidence intervals are overlapping, so there is not convincing evidence that Spain has seen a change in its atheism index between 2005 and 2012.
+
+####b). Is there convincing evidence that the United States has seen a change in its atheism index between 2005 and 2012?
+
+Observations must be independent - There may be some degree of sampling bias since the sample was not a simple random sample, however, the data is random enough to have independent observations. Also the sample is less than 10% of the population.
+
+Success failure criteria - There are at least 10 expected people in the success group and 10 people in the failure group.
+
+H0: There is no change in the atheism index of the United States between 2005 and 2012.
+
+HA: There is a change in the atheism index of the United States between 2005 and 2012.
+
+```{r}
+inference(us12$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+```
+
+```{r}
+us5 <- subset(atheism, nationality == "United States" & year == "2005")
+
+inference(us5$response, est = "proportion", type = "ci", method = "theoretical", 
+          success = "atheist")
+```
+
+Since the confidence intervals are not overlapping, there is enough evidence to conclude that there has been a change in the United States' atheism index between 2005 and 2012.
+
+###2). If in fact there has been no change in the atheism index in the countries listed in Table 4, in how many of those countries would you expect to detect a change (at a significance level of 0.05) simply by chance?\ *Hint:* Look in the textbook index under Type 1 error.
+
+We would expect to detect a change in 5% of the countries by chance.
+
+###3). Suppose you're hired by the local government to estimate the proportion of residents that attend a religious service on a weekly basis. According to the guidelines, the estimate must have a margin of error no greater than 1% with 95% confidence. You have no idea what to expect for $p$. How many people would you have to sample to ensure that you are within the guidelines?\ *Hint:* Refer to your plot of the relationship between $p$ and margin of error. Do not use the data set to answer this question.
+
+Since the margin of error is maximized at p = 0.5, calculating the sample size based off of p = 0.5 ensures that the margin of error will not be greater than 1% not matter what p actually is.
+
+```{r}
+margin = 0.25/((0.01/1.96)^2)
+margin
+```
+
+The sample should be 9604 to ensure a margin of error of 1% at 95% confidence.
+
