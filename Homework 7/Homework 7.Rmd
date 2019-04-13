@@ -1,0 +1,147 @@
+---
+title: "Homework 7 - Linear Regression"
+author: "Austin Chan"
+date: "April 10, 2019"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+##7.24
+
+###a).
+
+There appears to be a weakly positive linear relationship between the number of calories and the amount of carbohydrates that Starbucks food menu items contain.
+
+###b).
+
+The explanatory variable is calories and the response variable is carbohydrates in grams.
+
+###c).
+
+We want to fit a regression line to this data to see if a linear relationship is a good fit to model the relationship between calories and carbohydrates. If the model fits well, tt may be possible to predict the amount of carbohydrates in Starbucks food items using calorie count.
+
+###d).
+
+These data do not meet the conditions required for fitting a least squares line. The residual plot shows that as the number of calories increases, the variance in the residuals also increases. This means that the variance is not constant and a linear model will not be a good fit for this data.
+
+
+##7.26
+
+###a).
+
+```{r}
+b1 = (9.41/10.72) * 0.67
+b0 = 171.14 - (b1 * 107.2)
+
+b1
+b0
+```
+
+
+\[
+  \hat{height} = 108.093 + 0.588125 * shoulder girth
+\]
+
+###b).
+
+Slope - As shoulder girth increases by one centimeter, then height increases by 0.588125 centimeters.
+
+Intercept - When shoulder girth is zero centimeters, then height is 108.093 centimeters.
+
+###c).
+
+```{r}
+0.67^2
+```
+
+An R-squared of 0.4489 indicates that shoulder girth explains about 44.9% of the variation in height.
+
+###d).
+
+```{r}
+predicted = (b1 * 100) + b0
+predicted
+```
+
+The predicted height of a student with a shoulder girth of 100 cm is 166.9055 cm.
+
+###e).
+
+```{r}
+predicted - 160
+```
+
+The residual is 6.9055 cm. The residual is the difference between the predicted height and the actual height.
+
+###f).
+
+No, trying to predict the height of the child would be extrapolation because the model probably does not account for one year old children.
+
+
+##7.30
+
+###a).
+
+\[
+  \hat{heart weight} = -0.357 + 4.034 * body weight
+\]
+
+###b).
+
+When body weight is zero, the heart weight is -0.357 grams. The intercept clearly does not make any practical sense in this scenario.
+
+###c).
+
+As body weight increases by one kilogram, heart weight increases by 4.034 grams.
+
+###d).
+
+64.66% of the variation in heart weight is explained by body weight.
+
+###e).
+
+```{r}
+sqrt(0.6466)
+```
+
+Since the relationship is positive, the correlation is also positive.
+
+
+##7.40
+
+###a).
+
+```{r}
+b1 = (3.9983 - 4.010)/-0.0883
+b1
+```
+
+###b).
+
+Since the p-value is nearly zero, it is incredibly unlikely that the slope is equal to zero. Therefore, there is enough evidence to conclude that the slope of the relationship between teaching evaluation and beauty is positive.
+
+###c).
+
+Linearity - The data shows a very weakly linear trend. There does not appear to be a nonlinear pattern in the data.
+
+Nearly Normal Residuals - The histogram of the residuals shows that there is moderate left skew, but is otherwise mostly normal.
+
+Constant Variability - There does not appear to be a change in variability as the order of data collection increases.
+
+Independent Observations - It is possible that students in the same class wrote ratings about particular professors and could have influenced each other. While unlikely, I would not rule out the possibility that the observations are independent.
+
+
+
+
+
+
+
+
+
+
+
+
+
