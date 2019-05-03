@@ -1,0 +1,137 @@
+---
+title: "Homework 8 - Multiple Linear Regression"
+author: "Austin Chan"
+date: "April 21, 2019"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+---
+
+##8.2
+
+###a).
+
+$Weight = -1.93*Parity + 120.07$
+
+###b).
+
+First born babies have a predicted birth weight 1.93 ounces lower than babies who are not first born.
+
+###c).
+
+Since the p-value for the slope is >0.1 at the confidence level of 0.05, there is not a statistically significant relationship between average birth weight and parity.
+
+##8.4
+
+###a).
+
+$AbsentDays = -9.11*Ethnicity + 3.10*Sex + 2.15*Learner + 18.93$
+
+###b).
+
+Ethnicity - All else being constant, the predicted number of absent days for not aboriginal students is 9.11 days lower than aboriginal students.
+
+Sex - All else being constant, the predicted number of absent days for males is 3.1 days higher than females.
+
+Learner Status - All else being constant, the predicted number of absent days for slow learners is 2.15 days higher than average learners.
+
+###c).
+
+```{r}
+predicted = -9.11*0 + 3.10*1 + 2.15*1 + 18.93
+observed = 2
+
+predicted - observed
+```
+
+###d).
+
+```{r}
+Rsquared = 1 - (240.57/264.17)
+RsquaredAdj = 1 - ((240.57/(146 - 3 - 1))/(264.17/(146-1)))
+
+Rsquared
+RsquaredAdj
+```
+
+##8.8
+
+Learner status should be removed because it increases the adjusted Rsquared when it is removed.
+
+##8.16
+
+###a).
+
+The lower the temperature, the higher the likelihood that there were damaged O-rings.
+
+###b).
+
+Intercept - The estimated number of O-ring failures when the temperature is zero is 11.66.
+
+Temperature - As temperature increases by one degree, the estimated number of O-ring failures decreases by 0.2162.
+
+###c).
+
+$log(phat/1-phat)  = -0.2162*Temperature + 11.663 $
+
+###d).
+
+The concerns regarding O-rings are justified because there is a statistically significant negative relationship between temperature and O-ring failures. This means that if the temperature is too low, it is very likely that there will be an O-ring failure.
+
+
+##8.18
+
+###a).
+
+```{r}
+p51 = 11.663 - (0.2162 * 51)
+p53 = 11.663 - (0.2162 * 53)
+p55 = 11.663 - (0.2162 * 55)
+
+probCalc = function(px){
+  
+  output = exp(px)/(1+ exp(px))
+  
+  return(output)
+  
+} 
+
+probCalc(p51)
+probCalc(p53)
+probCalc(p55)
+```
+
+###b).
+
+```{r}
+logitcalc = function(x){
+  
+  px = 11.663 - (0.2162 * x)
+  
+  output = probCalc(px)
+  
+  return(output)
+  
+}
+
+logitx = seq(20,90,1)
+logity = sapply(logitx,logitcalc)
+
+
+plot(logitx,logity, type = "l")
+```
+
+###c).
+
+Each predictor is linearly related to logit(p) - This is true and shown by the model output.
+
+Each outcome is independent of all other outcomes - This assumption may be violated since subsequent launches are improved based off of previous launches. It is possible that over time, the technology of the launches are getting better and O-ring failures may be dependent on those improvements.
+
+
+
+
+
+
+
