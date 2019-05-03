@@ -1,0 +1,308 @@
+---
+title: "Multiple linear regression"
+output:
+  html_document:
+    css: ./lab.css
+    highlight: pygments
+    theme: cerulean
+  pdf_document: default
+---
+
+
+```{r load-data, eval=TRUE}
+load("more/evals.RData")
+```
+
+
+1.  Is this an observational study or an experiment? The original research
+    question posed in the paper is whether beauty leads directly to the
+    differences in course evaluations. Given the study design, is it possible to
+    answer this question as it is phrased? If not, rephrase the question.
+
+This is an observational study. It is not possible to establish a causal link between beauty and higher course evaluation scores. Rephrased:
+
+Is there a relationship between beauty and course evaluation scores?
+
+
+2.  Describe the distribution of `score`. Is the distribution skewed? What does 
+    that tell you about how students rate courses? Is this what you expected to 
+    see? Why, or why not?
+
+```{r}
+hist(evals$score)
+```
+
+The distribution of score is skewed. Most students rate their professors with higher scores rather than lower scores. This is what I expected to see. Usually grading distributions are also skewed to the left. It is very likely that students rate their professors based on what grades they received in the class.
+
+3.  Excluding `score`, select two other variables and describe their relationship 
+    using an appropriate visualization (scatterplot, side-by-side boxplots, or 
+    mosaic plot).
+
+```{r}
+plot(evals$age,evals$bty_avg)
+abline(lm(evals$bty_avg~evals$age), col = "red")
+```
+
+There is a very weak negative linear relationship between professor age and professor average beauty ranking.
+
+
+4.  Replot the scatterplot, but this time use the function `jitter()` on the
+    $y$- or the $x$-coordinate. (Use `?jitter` to learn more.) What was
+    misleading about the initial scatterplot?
+
+```{r scatter-score-bty_avg}
+plot(jitter(evals$score,factor= 2) ~ evals$bty_avg)
+```
+
+The initial scatterplot has overlapping points on the score variable. Many students were rating professors the same score, so their points would overlap. These overlapped points would appear as one point, which makes the scatterplot misleading.
+
+5.  Let's see if the apparent trend in the plot is something more than
+    natural variation. Fit a linear model called `m_bty` to predict average
+    professor score by average beauty rating and add the line to your plot
+    using `abline(m_bty)`. Write out the equation for the linear model and
+    interpret the slope. Is average beauty score a statistically significant
+    predictor? Does it appear to be a practically significant predictor?
+
+```{r}
+m_bty = lm(score~bty_avg, data = evals)
+
+summary(m_bty)
+```
+
+```{r}
+plot(evals$bty_avg,evals$score)
+abline(m_bty,col = "red")
+```
+
+$Score = AverageBeauty*0.06664 + 3.88034$
+
+For every increase in one average beauty point, the predicted evaluation score increases by 0.06664.
+
+Average beauty score is a statistically significant predictor because its p-value is almost zero. It does not appear to be a statistically significant predictor because the regression line is almost horizontal, indicating no relationship.
+
+
+6.  Use residual plots to evaluate whether the conditions of least squares
+    regression are reasonable. Provide plots and comments for each one (see
+    the Simple Regression Lab for a reminder of how to make these).
+
+Data must show a linear trend:
+
+```{r}
+plot(evals$bty_avg,evals$score)
+abline(m_bty,col = "red")
+```
+
+The trend of this data is somewhat linear.
+
+Residuals must be normal:
+
+```{r}
+hist(m_bty$residuals)
+```
+
+Residuals are very clearly skewed to the left.
+
+Constant variance:
+
+```{r}
+plot(m_bty$residuals)
+abline(h = 0, col = "red")
+```
+
+The variance in the residuals does not appear to change as the data increments.
+
+Independent observations:
+
+It is unlikely that the data is independent. Many students talk to each other and form opinions about professors based on how their friends feel about the professor.
+
+Overall, I would say a linear model is not a good fit for this data because many assumptions are violated.
+
+7.  P-values and parameter estimates should only be trusted if the
+    conditions for the regression are reasonable. Verify that the conditions
+    for this model are reasonable using diagnostic plots.
+
+```{r scatter-score-bty_avg_gender}
+m_bty_gen <- lm(score ~ bty_avg + gender, data = evals)
+summary(m_bty_gen)
+```
+
+Residuals are nearly normal:
+
+```{r}
+hist(m_bty_gen$residuals)
+```
+
+Residuals are skewed to the left.
+
+Variability of the residuals are constant:
+
+```{r}
+plot(m_bty_gen$residuals)
+abline(h = 0, col = "red")
+```
+
+The variability of the residuals does not change as the index increments.
+
+Residuals are independent:
+
+According to the residual plot, there does not appear to be a particular pattern in the residuals, so it is reasonable to assume that the residuals are independent.
+
+Each variable is linearly related to the outcome:
+
+```{r}
+plot(evals$bty_avg,evals$score)
+plot(evals$gender, evals$score)
+```
+
+There appears to be a linear relationship between the predictor variables and the explanatory variable.
+
+The conditions for this model are reasonable.
+
+
+8.  Is `bty_avg` still a significant predictor of `score`? Has the addition
+    of `gender` to the model changed the parameter estimate for `bty_avg`?
+
+```{r}
+summary(m_bty_gen)
+```
+
+Average beauty is still a significant predictor of score. The addition of gender has changed the model parameter estimate for beauty average.
+
+
+9.  What is the equation of the line corresponding to males? (*Hint:* For
+    males, the parameter estimate is multiplied by 1.) For two professors
+    who received the same beauty rating, which gender tends to have the
+    higher course evaluation score?
+
+```{r twoLines,eval=FALSE}
+multiLines(m_bty_gen)
+```
+
+$Score = AverageBeauty*0.07416 + 0.17239 * 1 + 3.74734$
+
+Males tend to have a higher course evaluation score.
+
+10. Create a new model called `m_bty_rank` with `gender` removed and `rank` 
+    added in. How does R appear to handle categorical variables that have more 
+    than two levels? Note that the rank variable has three levels: `teaching`, 
+    `tenure track`, `tenured`.
+
+```{r}
+m_bty_rank = lm(score~bty_avg + rank, data = evals)
+
+summary(m_bty_rank)
+```
+
+R turns categorical variables with more than two levels into dummy variables for each category.
+
+11. Which variable would you expect to have the highest p-value in this model? 
+    Why? *Hint:* Think about which variable would you expect to not have any 
+    association with the professor score.
+
+I would expect that the professor outfit would have the highest p-value in this model. Holding all other variables constant, the professor's outfit in their profile picture is probably completely irrelevant. Especially if the professor's average beauty is included, the effect of the outfit would probably be close to zero.
+
+12. Check your suspicions from the previous exercise. Include the model output
+    in your response.
+
+```{r m_full, tidy = FALSE, eval = TRUE}
+m_full <- lm(score ~ rank + ethnicity + gender + language + age + cls_perc_eval 
+             + cls_students + cls_level + cls_profs + cls_credits + bty_avg 
+             + pic_outfit + pic_color, data = evals)
+summary(m_full)
+```
+
+It appears that outfit has a fairly high p-value, however, it is not as high as `cls_profs` which is the number of professors teaching the class.
+
+13. Interpret the coefficient associated with the ethnicity variable.
+
+Holding all other variables constant, if a professor is not a minority, then their predicted score is 0.1234929 higher than professors that are a minority.
+
+14. Drop the variable with the highest p-value and re-fit the model. Did the
+    coefficients and significance of the other explanatory variables change?
+    (One of the things that makes multiple regression interesting is that
+    coefficient estimates depend on the other variables that are included in
+    the model.) If not, what does this say about whether or not the dropped
+    variable was collinear with the other explanatory variables?
+
+```{r}
+m_fullminus1 <- lm(score ~ rank + ethnicity + gender + language + age + cls_perc_eval 
+             + cls_students + cls_level + cls_credits + bty_avg 
+             + pic_outfit + pic_color, data = evals)
+
+summary(m_fullminus1)
+```
+
+A few of the explanatory variables changed slightly, but no major changes. Since the variables did not change much, that would indicate that there was not much collinearity between that variable and the other variables.
+
+15. Using backward-selection and p-value as the selection criterion,
+    determine the best model. You do not need to show all steps in your
+    answer, just the output for the final model. Also, write out the linear
+    model for predicting score based on the final model you settle on.
+
+```{r}
+library(MASS)
+
+backward = stepAIC(m_full,dicretion = "backward")
+
+summary(backward)
+```
+
+$Score = Ethnicity*0.16 + Gender*0.20 - Language*0.25 - Age*0.007 + ClsPercEval*0.005 + ClsCredit*0.52 + BeautyAverage*0.047 - Outfit*0.11 - PicColor*0.18$
+
+16. Verify that the conditions for this model are reasonable using diagnostic 
+    plots.
+
+
+```{r}
+hist(backward$residuals)
+```
+
+
+```{r}
+plot(backward$residuals)
+abline(h=0,col="red")
+```
+
+
+Residuals look somewhat normal, but skewed to the left.
+
+The residuals do not vary significantly as the index increases.
+
+The residuals do not exibit a pattern, and appear to be independent.
+
+Most variables in the model are linearly related to the outcome.
+
+A linear model is reasonable.
+
+17. The original paper describes how these data were gathered by taking a
+    sample of professors from the University of Texas at Austin and including 
+    all courses that they have taught. Considering that each row represents a 
+    course, could this new information have an impact on any of the conditions 
+    of linear regression?
+
+New information can have an impact on the conditions. If a professor is teaching the same class many years in a row, then they are obviously aging, becoming more/less attractive, becoming tenured, and other variables are changing. Therefore, it may be difficult to assume that the residuals are indpendent because different variables are dependent on each other as time passes.
+
+
+18. Based on your final model, describe the characteristics of a professor and 
+    course at University of Texas at Austin that would be associated with a high
+    evaluation score.
+
+Based on my model, a professor and course with a high evaluation score would have the following characteristics:
+
+- Professor is not a minority.
+- Professor is male.
+- Professor is from english speaking country.
+- Professor is young.
+- Class has a high percentage of evaluation submissions.
+- Class is offered for one credit.
+- Professor has a high average beauty score.
+- Professor profile picture is formal.
+- Professor profile picture color is in black and white.
+
+
+19. Would you be comfortable generalizing your conclusions to apply to professors
+    generally (at any university)? Why or why not?
+
+I would not be comfortable generalizing my conclusions to apply to other professors at other universities because the sample does not cover students and professors from other universities. It is possible that students at this particular university have different standards for evaluation than other students at other universities. These differences can cause variations in evaluation scores. If this study was done nationally, it would be more reasonable to generalize its conclusions.
+
+
