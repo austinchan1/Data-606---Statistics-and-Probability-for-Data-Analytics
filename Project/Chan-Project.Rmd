@@ -1,0 +1,316 @@
+---
+title: "Data 606 - Final Project"
+author: "Austin Chan"
+date: "April 27, 2019"
+output: 
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_float: true
+---
+
+#Introduction
+
+Picking a college major is not easy. With hundreds of majors to choose from and thousands of accreditted universities in the United States and abroad, it can be quite daunting to narrow down a list of schools and programs to apply for. Combined with the societal pressure from parents and the possibility of accruing student loan debt for life, picking the right college major now is more important than ever. Given these potential risks, it is worthwhile to analyze the financial prospects of college majors to help students make informed decisions about their future.
+
+There seems to be a popular sentiment that purusing any college degree will lead to financial stability. While this may have been true in the past when tuiton was cheaper and student loan debt was reasonable, it may not be true now in today's economy. I am interested in testing this popular sentiment by analyzing the earnings across different college major categories. My research question is as follows: 
+
+Is there a relationship between median full time earnings and college major category?
+
+
+#Data
+
+The data I will be using for this project is a dataset from fivethirtyeight that originated from the American Community Survey. This data tracks people from different college majors and measures their full time income along with a few other statistics.
+
+The data can be found here:
+
+https://github.com/fivethirtyeight/data/blob/master/college-majors/recent-grads.csv
+
+The documentation for PUMS can be found here:
+
+https://www.census.gov/programs-surveys/acs/technical-documentation/pums.html
+
+The code below fetches the data directly from github.
+
+```{r}
+library(DT)
+library(dplyr)
+
+RecentGrads = read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/recent-grads.csv", stringsAsFactors = F)
+
+datatable(RecentGrads)
+```
+
+
+##Data collection
+
+The data was collected from the US Census in a program called the American Community Survey. The American Community Survey program gathers data for the Public Use Microdata Sample, which creates aggregated counts and statistics of households across the United States.
+
+##What are the cases?
+
+The cases for this study are individual college majors. Each college major has its own unique ID as well as a broader categorization grouping that is used to lump similar majors together. There are 173 college majors in this dataset.
+
+##What two variables will you be studying? State the type of each variable.
+
+The two variables I will be studying for this project are median full time earnings and major category. Median full time earnings is a numeric variable while major category is a categorical variable.
+
+I will use major category to predict median full time earnings.
+
+Further analysis will probably uncover other explanatory variables that include, the proportion of women in the major, the unemployment rate, and the proportion of people in a job requiring a college degree.
+
+##What is the type of study?
+
+Since the data does not have a treatment or control group, this study is an observational study. Also, the data was gathered through a self-reported survey from the US census and was not gathered with the intention of experimentation.
+
+
+##Scope of inference
+
+###Generalizability
+
+The population of interest for this study is recent college graduates in the United States. I think that the results from this study can be generalized to this population because the data is sampled from recent college graduates across the United States who took part in the census. Since the census encompasses every adult in the United States, its data is representative of the general population because it includes everybody in the general population.
+
+However, the PUMS data was gathered from willing participants in a random sample, which means that not everybody in the original sample participated in the survey. Since there is some degree of selection bias, there may be some slight concerns with generalizability because people who do not want to report their income may choose to not participate, which skews the income results.
+
+###Causality
+
+Causality cannot be established between the variables of interest because this study is an observational study. 
+
+
+#Exploratory Data Analysis
+
+Before diving into the analysis and formal testing, it is important to look at the data first and identify potential multicollinearity or non-linear relationships between variables.
+
+##Median income statistics
+
+The first variable to look at is the median full-time yearly income for all majors. The distribution of this variable is skewed to the right, where most of the values are centered around 36000, which is the median. This median income distribution looks similar to most income distributions, which is a good sign.
+
+```{r}
+summary(RecentGrads$Median)
+hist(RecentGrads$Median, main = "Median Yearly Full Time Income Histogram", xlab = "Median Income")
+```
+
+##Major Category
+
+The spread of the majors is a little bit concerning. The sample size for each major category is not equal. There are some major categories like Engineering, which have 29 different majors, while Interdisciplinary has only one. This sample size problem should not be an issue since the sample size within each major is fairly large. It would have been nice to have access to the raw dataset, but privacy limitations prevent the raw data from being shared publicly.
+
+```{r}
+table(RecentGrads$Major_category)
+```
+
+##Proportion of women in major
+
+One important factor to consider when analyzing median income is the proportion of women in the major. Historically, professions with a higher proportion of women tend to have lower median annual incomes, which can have a confounding effect with major category. According to the graph below, there appears to be a moderate negative linear relationship between the proportion of women and median annual income.
+
+Given that there is a relationship between these two variables and the possible confounding effect it may have on our predictor variable, the proportion of women in the major will probably be included in the model.
+
+```{r}
+summary(RecentGrads$ShareWomen)
+
+plot(RecentGrads$ShareWomen,RecentGrads$Median, xlab = "Proportion of Women",ylab = "Median Annual Income",main = "Proportion of Women vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$ShareWomen),col = "red")
+```
+
+##Unemployment rate
+
+I wasn't sure if unemployment rate would affect median annual income, so I wanted to check if there was a relationship. According to the graph, there does not appear to be a linear relationship between unemployment rate and median annual income. Therefore, I will not be including this variable in the final model.
+
+```{r}
+summary(RecentGrads$Unemployment_rate)
+
+plot(RecentGrads$Unemployment_rate,RecentGrads$Median, xlab = "Unemployment Rate",ylab = "Median Annual Income",main = "Unemployment Rate vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$Unemployment_rate),col = "red")
+```
+
+##College Degree Percentage
+
+The last variable to check is the percentage of recent graduates in the major that have a job which requires a college degree. I calculated this by taking the number of people with jobs requiring a college degree and dividing it by the sum of college degree jobs, non-college degree jobs, and low wage jobs. According to the graph there appears to be a weak positive correlation between college degree percentage and median annual income.
+
+It is possible that median annual income will be higher due to a larger percentage of people in the major with a college degree, which is separate from the effect of the major category on income. I wanted to account for this possible confounding variable by including it in the model if it turns out to be statistically significant. 
+
+
+```{r}
+RecentGrads$CollegeDegreePct = RecentGrads$College_jobs/(RecentGrads$College_jobs + RecentGrads$Non_college_jobs + RecentGrads$Low_wage_jobs)
+
+summary(RecentGrads$CollegeDegreePct)
+
+plot(RecentGrads$CollegeDegreePct,RecentGrads$Median, xlab = "College Degree Percentage",ylab = "Median Annual Income",main = "College Degree Percentage vs. Median Annual Income")
+abline(lm(RecentGrads$Median~RecentGrads$CollegeDegreePct),col = "red")
+```
+
+##What does EDA suggest about your research question?
+
+My research question was to determine whether or not there was a relationship between college degree category and median annual income.
+
+From my exploratory data analysis, I found that a couple of the other variables are correlated with median annual income: the proportion of women in the major and the percentage of graduates with a job that requires a college degree. I am inclined to include the proportion of women as a variable in the model because it is a confounding variable that needs to be accounted for. I will also include the college degree percentage in the model because of the confounding factor that majors with higher proportions of college degree jobs tend to have higher median incomes. 
+
+
+#Inference
+
+In the following section, I will be conducting inference to see if there is a statistically significant relationship between major category and median annual wage. First I will check the model conditions for a multiple linear regression model. This includes observing residual plots to assess the conditions. If the conditions are satisfied, I will proceed to fit the model and interpret the results. If the conditions are not satisfied, I will perform a variable transformation to make the data more appropriate for a linear model. After fitting and analyzing the model, I will run a bootstrap simulation of the model's significant coefficients to test their robustness. Ideally, there will be coefficients in the major category that are both statistically significant in the fitted model and robust in the bootstrap simulation.
+
+##Check model conditions
+
+The model I will be using for this analysis is a multiple linear regression model. In the previous section, I found that the proportion of women in a major and the percentage of graduates with a job that requires a college degree appear to have a linear relationship with median annual income. However, a linear relationship between the explanatory and response variables is only the first assumption that needs to be satisfied. The other assumptions will require residual analysis.
+
+###Residual Analysis
+
+In order for a multiple linear regression model to be a good fit for the data, it must satisfy the following conditions:
+
+- Residuals of the model are nearly normal.
+- Variability of the residuals are constant.
+- Residuals are independent.
+- Each variable is linearly related to the outcome.
+
+####Model 1
+
+The code below creates a multiple linear regression model to predict median annual income using `Major_category`, `ShareWomen`, and `CollegeDegreePct`. After building the model, I plotted the residuals with a histogram, a QQ plot, and a residual plot to assess the conditions of fit.
+
+```{r}
+initial_model = lm(Median~Major_category + ShareWomen + CollegeDegreePct, data = RecentGrads)
+
+hist(initial_model$residuals,main = "Histogram of Residuals")
+
+qqnorm(initial_model$residuals)
+qqline(initial_model$residuals)
+
+plot(initial_model$residuals,main = "Residual Plot")
+abline(h=0,col="red")
+```
+
+According to the histogram and the QQ plot, the residuals appear to be skewed to the right. Since the sample size is large, skewness is not entirely a dealbreaker for fitting the model, but it is a concern.
+
+Looking at the residual plot, the variability of the residuals appears to decrease slightly as the index increases. This may indicate that the data may not fit a linear model properly.
+
+Luckily, there does not appear to be an apparent pattern (other than the decreasing variability) in the residual plot, which indicates that the data is independent.
+
+After assessing the model assumptions for this model, I would not be confident in fitting a multiple linear regression model to this data.
+
+***
+
+####Model 2
+
+While the first model fails to meet the conditions for multiple linear regression, it is possible to transform the variables to make them fit better with a linear model.
+
+In this model, I calculated the log transformation of the median annual income to reduce the skewness of that variable. Afterwards, I fit the same predictor variables to a multiple linear regression model to predict the logged median annual income.
+
+The code below shows how I created the new variable and the new model as well as plotting the residuals.
+
+```{r}
+RecentGrads$LogMedian = log(RecentGrads$Median)
+
+log_model = lm(LogMedian~Major_category + ShareWomen + CollegeDegreePct, data = RecentGrads)
+
+hist(log_model$residuals, main = "Histogram of Logged Median Yearly Income")
+
+qqnorm(log_model$residuals)
+qqline(log_model$residuals)
+
+plot(log_model$residuals, main = "Residual Plot")
+abline(h=0,col="red")
+```
+
+
+According to the new histogram and QQ plot, the residuals appear to be more normal, which is a good sign.
+
+The new residual plot shows more constant variability compared to the previous residual plot, but there is still less variability at higher indices. Also, there does not appear to be any particular pattern in the residual plot, which indicates that the residuals are independent.
+
+After assessing the model assumptions for this new model, I would be confident in saying that a multiple linear regression model is a good fit for this data.
+
+
+##Theoretical inference
+
+Now that the model is a good fit, I can conduct theoretical inference about the relationship between major category and median annual earnings.
+
+A summary of the model can be seen below:
+
+```{r}
+summary(log_model)
+
+exp(0.315584 + 10.463048) - exp(10.463048)
+exp(0.278021 + 10.463048) - exp(10.463048)
+```
+
+According to the model, the major categories of business and engineering are the only statistically significant major categories at alpha < 0.001 when the proportion of women in a major and the college degree percentage are held constant. In other words, there is a relationship between having an engineering degree or a business degree and median annual income when the proportion of women in the major and college degree percentage are accounted for.
+
+After transforming the data back into median annual income and controlling for other variables, the model predicts that Engineering majors have a predicted median annual income \$12,986 higher than non-Engineering majors. Business majors have a predicted median annual income \$11,217 higher than non-Business majors.
+
+The confidence intervals for both variables can be seen below:
+
+```{r}
+BusinessEstimate = 0.278021
+BusinessSD = 0.063368
+
+c(BusinessEstimate - 2*BusinessSD, BusinessEstimate + 2*BusinessSD)
+
+EngineeringEstimate = 0.315584
+EngineeringSD = 0.060488
+
+c(EngineeringEstimate - 2*EngineeringSD, EngineeringEstimate + 2*EngineeringSD)
+```
+
+Neither confidence interval contains 0, which indicates that there is a statistically significant difference between the median annual incomes of business/engineering majors and other majors.
+
+##Simulation-based Inference
+
+While, the theoretical inference checks out, it is important to validate the results through another method. To confirm the findings, I am going to run a bootstrap simulation and see if the findings are robust. Bootstrap sampling is when subsamples are taken from an original sample with replacement to estimate the variation of parameters of interest. If there is low variation, that means that the results are consistent no matter what the sample is, which creates evidence of robustness. If there is high variation, that means that the results are inconsistent or highly dependent on the sample.
+
+In the code below, I subsampled the original data 10000 times and created a linear model predicting the logged median income using the same variables as in model 2. Afterwards, I extracted the Engineering major cateogry and the Business category and observed their distributions.
+
+```{r}
+bootstrapper = function(df,samplesize){
+  
+  sample = sample_n(df,samplesize,replace = TRUE)
+  
+  sample$LogMedian = log(sample$Median)
+
+  output_model = lm(LogMedian~Major_category + ShareWomen + CollegeDegreePct, data = sample)
+  
+  Engineering = unname(output_model$coefficients["Major_categoryEngineering"])
+  Business = unname(output_model$coefficients["Major_categoryBusiness"])
+  
+  output = c(Engineering,Business)
+  
+  return(output)
+  
+}
+
+set.seed(1000)
+
+bootstrapList = lapply(1:10000,function(x) bootstrapper(RecentGrads,173))
+
+bootstrapEngineering = sapply(1:10000, function(x) bootstrapList[[x]][1])
+bootstrapBusiness = sapply(1:10000, function(x) bootstrapList[[x]][2])
+```
+
+
+```{r}
+hist(bootstrapEngineering, main = "Engineering Bootstrap Distribution")
+
+hist(bootstrapBusiness, main = "Business Bootstrap Distribution")
+```
+
+According to the histograms above, both the Engineering and Business bootstrap distributions are very robust. Very few, if any estimates are below zero and the distributions are normal. The variance of the distributions are not particularly high, which indicates that both distributions are fairly robust. There appears to be strong evidence that these coefficients are not zero.
+
+
+
+#Conclusion
+
+##Summary of findings
+
+After performing exploratory data analysis and inference on the data, I constructed a model that predicts the median annual income using major category, proportion of women in the major, and the percentage of graduates in degree-required jobs. The first model I tried to fit did not satisfy the conditions for a multiple linear regression model, so I transformed the annual median income to make its distribution more normal. This data transformation improved the fit of the model and I was able to conduct inference.
+
+From the theoretical inference, I found that the major categories of Engineering and Business were statistically significant, and that they tend to have higher annual median incomes compared to other majors; holding all other variables constant. The simulation-based inference found similar results and confirmed the robustness of the relationship between Engineering and Business major categories and median annual income. 
+
+##What have you learned about your research question and the data you collected?
+
+Based on this analysis, I have learned that most majors tend to make a similar amount of income after accounting for gender proportions and college-degree required employment. However, Engineering and Business majors make a considerably higher amount of income compared to other majors. Controlling for all other variables, Engineering majors have a median annual income \$12,986 higher than non-Engineering majors, while Business majors have a median annual income \$11,217 higher than non-Business majors.
+
+So for high school students who are about to go to college, it may be worthwhile to consider majoring in Engineering or Business if they do not plan to pursue a graduate degree. 
+
+##Possible future research
+
+This research only considers bachelor's degrees and does not account for the higher potential income of pursuing graduate education. It would be interesting to see if the same relationship is true for graduate degrees. 
+
+
+
+
